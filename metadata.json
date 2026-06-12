@@ -1,0 +1,8 @@
+{
+  "name": "EazePOS V2 Main",
+  "description": "Offline Android POS and inventory manager featuring voice-command input, real-time analytics, and a modern Jetpack Compose interface.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
