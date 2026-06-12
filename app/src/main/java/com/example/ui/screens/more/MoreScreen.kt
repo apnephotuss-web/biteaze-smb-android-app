@@ -44,7 +44,10 @@ import com.example.ui.screens.billing.NumberingMode
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MoreScreen(onNavigateToExpenses: () -> Unit) {
+fun MoreScreen(
+    onNavigateToExpenses: () -> Unit,
+    onSignOut: () -> Unit
+) {
     val context = LocalContext.current
     val billingViewModel: BillingViewModel = viewModel(
         factory = BillingViewModel.Factory(context.applicationContext as android.app.Application)
@@ -486,6 +489,63 @@ fun MoreScreen(onNavigateToExpenses: () -> Unit) {
                         )
                     }
                 }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Sign Out Tile
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            val authManager = com.example.core.auth.FirebaseAuthManager(context)
+                            authManager.signOut()
+                            onSignOut()
+                        },
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    border = BorderStroke(1.dp, Color(0xFFFEE2E2))
+                ) {
+                    Row(
+                        modifier = Modifier.padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(48.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(Color(0xFFFFEAEA)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Logout,
+                                contentDescription = "Sign Out",
+                                tint = Color(0xFFEF4444),
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "Sign Out",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFFEF4444)
+                            )
+                            Text(
+                                text = "Log out from your sync account",
+                                fontSize = 13.sp,
+                                color = Color(0xFF94A3B8)
+                            )
+                        }
+                        Icon(
+                            imageVector = Icons.Rounded.ChevronRight,
+                            contentDescription = null,
+                            tint = Color(0xFFEF4444)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(40.dp))
             }
         }
     }

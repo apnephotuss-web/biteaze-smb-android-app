@@ -17,17 +17,12 @@ class SyncPosApplication : Application() {
                 db.execSQL("ALTER TABLE orders ADD COLUMN tableNumber TEXT")
             }
         }
-        val MIGRATION_11_12 = object : androidx.room.migration.Migration(11, 12) {
-            override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
-                db.execSQL("ALTER TABLE customers ADD COLUMN credit_balance REAL NOT NULL DEFAULT 0.0")
-            }
-        }
 
         database = Room.databaseBuilder(
             this,
             AppDatabase::class.java,
             "syncpos_database"
-        ).addMigrations(MIGRATION_8_9, MIGRATION_11_12)
+        ).addMigrations(MIGRATION_8_9)
          .fallbackToDestructiveMigration().build()
         repository = AppRepositoryImpl(database)
     }

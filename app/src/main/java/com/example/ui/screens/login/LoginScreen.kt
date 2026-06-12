@@ -39,7 +39,11 @@ fun LoginScreen(
     // WARNING: Replace this string with a dummy or use string resources,
     // actually we will instruct the user to configure Web Client ID in strings.xml 
     // or as a Secret in AI Studio later.
-    val webClientId = "your_web_client_id_here" // Placeholder
+    val webClientId = if (com.example.BuildConfig.WEB_CLIENT_ID.isNotBlank() && com.example.BuildConfig.WEB_CLIENT_ID != "placeholder_client_id") {
+        com.example.BuildConfig.WEB_CLIENT_ID
+    } else {
+        "your_web_client_id_here"
+    }
 
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
@@ -52,12 +56,16 @@ fun LoginScreen(
                 if (idToken != null) {
                     scope.launch {
                         try {
-                            authManager.signInWithGoogle(idToken)
-                            // Initialize sync manager and restore data
-                            val app = context.applicationContext as com.example.SyncPosApplication
-                            val syncManager = com.example.core.sync.CloudSyncManager(app.repository)
-                            syncManager.restoreDataFromCloud()
-                            onLoginSuccess()
+                            val user = authManager.signInWithGoogle(idToken)
+                            if (user != null) {
+                                // Initialize sync manager and restore data
+                                val app = context.applicationContext as com.example.SyncPosApplication
+                                val syncManager = com.example.core.sync.CloudSyncManager(app.repository)
+                                syncManager.restoreDataFromCloud()
+                                onLoginSuccess()
+                            } else {
+                                errorMessage = "Firebase Authentication is missing or not configured. Please ensure google-services.json is added."
+                            }
                         } catch (e: Exception) {
                             e.printStackTrace()
                             errorMessage = e.localizedMessage ?: "Firebase auth failed"

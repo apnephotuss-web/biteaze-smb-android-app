@@ -40,7 +40,7 @@ sealed class Screen(val route: String, val title: String, val filledIcon: androi
 }
 
 @Composable
-fun MainScaffold() {
+fun MainScaffold(onSignOut: () -> Unit) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -215,7 +215,8 @@ fun MainScaffold() {
                             launchSingleTop = true
                             restoreState = true
                         }
-                    }
+                    },
+                    onSignOut = onSignOut
                 )
             }
         }

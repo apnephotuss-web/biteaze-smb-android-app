@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
   alias(libs.plugins.android.application)
   alias(libs.plugins.kotlin.compose)
@@ -15,10 +17,27 @@ android {
     applicationId = "com.aistudio.syncpos.wqmbyr"
     minSdk = 24
     targetSdk = 36
-    versionCode = 22
-    versionName = "22.0"
+    versionCode = 25
+    versionName = "25.0"
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+    // Load WEB_CLIENT_ID from .env or .env.example fallback for safety
+    val envFile = project.file(".env")
+    val envExampleFile = project.file(".env.example")
+    var clientId = "your_web_client_id_here"
+    
+    if (envFile.exists()) {
+        val props = Properties()
+        envFile.inputStream().use { props.load(it) }
+        clientId = props.getProperty("WEB_CLIENT_ID") ?: clientId
+    } else if (envExampleFile.exists()) {
+        val props = Properties()
+        envExampleFile.inputStream().use { props.load(it) }
+        clientId = props.getProperty("WEB_CLIENT_ID") ?: clientId
+    }
+    
+    buildConfigField("String", "WEB_CLIENT_ID", "\"$clientId\"")
   }
 
   signingConfigs {

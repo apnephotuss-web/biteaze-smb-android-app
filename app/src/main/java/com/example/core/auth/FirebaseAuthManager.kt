@@ -15,11 +15,11 @@ import android.util.Log
 
 class FirebaseAuthManager(private val context: Context) {
 
-    val auth: FirebaseAuth
-        get() = FirebaseAuth.getInstance()
+    val auth: FirebaseAuth?
+        get() = try { FirebaseAuth.getInstance() } catch (e: Exception) { null }
 
     val currentUser: FirebaseUser?
-        get() = auth.currentUser
+        get() = auth?.currentUser
 
     fun getGoogleSignInOptions(webClientId: String): GoogleSignInOptions {
         return GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -30,12 +30,16 @@ class FirebaseAuthManager(private val context: Context) {
 
     suspend fun signInWithGoogle(idToken: String): FirebaseUser? {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
-        val result = auth.signInWithCredential(credential).await()
-        return result.user
+        val result = auth?.signInWithCredential(credential)?.await()
+        return result?.user
     }
 
     fun signOut() {
-        auth.signOut()
-        GoogleSignIn.getClient(context, GoogleSignInOptions.DEFAULT_SIGN_IN).signOut()
+        auth?.signOut()
+        try {
+            GoogleSignIn.getClient(context, GoogleSignInOptions.DEFAULT_SIGN_IN).signOut()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 }

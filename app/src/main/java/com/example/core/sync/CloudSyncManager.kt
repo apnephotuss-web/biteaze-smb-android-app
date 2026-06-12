@@ -13,11 +13,14 @@ import kotlinx.coroutines.tasks.await
 class CloudSyncManager(
     private val repository: AppRepository
 ) {
-    private val firestore = FirebaseFirestore.getInstance()
-    private val auth = FirebaseAuth.getInstance()
+    private val firestore: FirebaseFirestore?
+        get() = try { FirebaseFirestore.getInstance() } catch (e: Exception) { null }
+        
+    private val auth: FirebaseAuth?
+        get() = try { FirebaseAuth.getInstance() } catch (e: Exception) { null }
 
     private val userDocRef
-        get() = auth.currentUser?.uid?.let { firestore.collection("users").document(it) }
+        get() = auth?.currentUser?.uid?.let { firestore?.collection("users")?.document(it) }
 
     // Backup Local Data to Cloud
     suspend fun backupDataToCloud() {
@@ -28,7 +31,8 @@ class CloudSyncManager(
             val expenses = repository.getAllExpenses().first()
             val orders = repository.getAllOrders().first()
 
-            val batch = firestore.batch()
+            val localFirestore = firestore ?: return
+            val batch = localFirestore.batch()
 
             // Backup Products
             products.forEach { product ->
