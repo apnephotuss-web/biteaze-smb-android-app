@@ -692,6 +692,7 @@ class BillingViewModel(
                 displayId = ctx.displayId.ifBlank { orderId.takeLast(4) },
                 scheduledStartTime = ctx.scheduledStartTime,
                 estimatedDuration = ctx.estimatedDuration,
+                tableNumber = ctx.tableNumber,
                 assignedStaffId = ctx.assignedStaffId,
                 assignedStaffName = ctx.assignedStaffName
             )
@@ -779,6 +780,7 @@ class BillingViewModel(
                 displayId = ctx.displayId.ifBlank { orderId.takeLast(4) },
                 scheduledStartTime = ctx.scheduledStartTime,
                 estimatedDuration = ctx.estimatedDuration,
+                tableNumber = ctx.tableNumber,
                 assignedStaffId = ctx.assignedStaffId,
                 assignedStaffName = ctx.assignedStaffName
             )

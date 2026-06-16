@@ -290,13 +290,13 @@ fun InventoryScreen(
                         shape = RoundedCornerShape(16.dp),
                         modifier = Modifier
                             .height(48.dp),
-                        contentPadding = PaddingValues(horizontal = 20.dp)
+                        contentPadding = PaddingValues(horizontal = if (currentCategory == "F&B") 12.dp else 20.dp)
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
-                            Icon(Icons.Rounded.Add, contentDescription = "Add", tint = Color.White, modifier = Modifier.size(20.dp))
+                            Icon(Icons.Rounded.Add, contentDescription = "Add", tint = Color.White, modifier = Modifier.size(18.dp))
                             Text(
                                 text = when (activeTab) {
                                     "ITEMS" -> "ADD ITEM"
@@ -307,8 +307,8 @@ fun InventoryScreen(
                                 },
                                 fontWeight = FontWeight.ExtraBold,
                                 color = Color.White,
-                                letterSpacing = 0.5.sp,
-                                fontSize = 13.sp
+                                letterSpacing = 0.25.sp,
+                                fontSize = if (currentCategory == "F&B") 10.sp else 13.sp
                             )
                         }
                     }
@@ -735,6 +735,7 @@ fun InventoryScreen(
         if (showVariationModal) {
             VariationAddEditDialog(
                 variation = variationToEdit,
+                isFnB = (currentCategory == "F&B"),
                 onDismiss = { showVariationModal = false },
                 onSave = { entity ->
                     viewModel.saveVariation(entity)
@@ -2341,11 +2342,23 @@ fun AddonAddEditDialog(
 @Composable
 fun VariationAddEditDialog(
     variation: com.example.core.database.entity.VariationEntity?,
+    isFnB: Boolean = false,
     onDismiss: () -> Unit,
     onSave: (com.example.core.database.entity.VariationEntity) -> Unit
 ) {
     var name by remember { mutableStateOf(variation?.name ?: "") }
-    var options by remember { mutableStateOf(variation?.options ?: "") }
+    
+    // For FnB category, we manage an expandable list of options. Otherwise, we maintain simple comma separated options.
+    var optionList by remember {
+        mutableStateOf(
+            if (variation?.options.isNullOrBlank()) {
+                listOf("")
+            } else {
+                variation!!.options.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+            }
+        )
+    }
+    var optionsText by remember { mutableStateOf(variation?.options ?: "") }
 
     Dialog(onDismissRequest = onDismiss) {
         Card(
@@ -2384,21 +2397,96 @@ fun VariationAddEditDialog(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Text("Options (comma-separated)", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Slate500)
-                Spacer(modifier = Modifier.height(6.dp))
-                OutlinedTextField(
-                    value = options,
-                    onValueChange = { options = it },
-                    placeholder = { Text("e.g. Small, Medium, Large", color = Slate400, fontSize = 13.sp) },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    singleLine = true,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = OrangeAccent,
-                        unfocusedBorderColor = Slate100,
-                        cursorColor = OrangeAccent
+                if (isFnB) {
+                    Text("Variation Options", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Slate500)
+                    Spacer(modifier = Modifier.height(6.dp))
+                    
+                    // Render dynamically, with scrolling safety
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = 200.dp)
+                            .verticalScroll(rememberScrollState()),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        optionList.forEachIndexed { index, option ->
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                OutlinedTextField(
+                                    value = option,
+                                    onValueChange = { newValue ->
+                                        optionList = optionList.toMutableList().apply {
+                                            this[index] = newValue
+                                        }
+                                    },
+                                    placeholder = { Text("Option ${index + 1} (e.g. Small / Large)", color = Slate400, fontSize = 13.sp) },
+                                    modifier = Modifier.weight(1f),
+                                    shape = RoundedCornerShape(12.dp),
+                                    singleLine = true,
+                                    colors = OutlinedTextFieldDefaults.colors(
+                                        focusedBorderColor = OrangeAccent,
+                                        unfocusedBorderColor = Slate100,
+                                        cursorColor = OrangeAccent
+                                    )
+                                )
+                                
+                                if (optionList.size > 1) {
+                                    IconButton(
+                                        onClick = {
+                                            optionList = optionList.toMutableList().apply {
+                                                removeAt(index)
+                                            }
+                                        },
+                                        modifier = Modifier.size(40.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Delete,
+                                            contentDescription = "Remove option",
+                                            tint = Color(0xFFEF4444)
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                    Spacer(modifier = Modifier.height(8.dp))
+                    
+                    // Add option CTA button
+                    OutlinedButton(
+                        onClick = {
+                            optionList = optionList + ""
+                        },
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = OrangeAccent),
+                        border = BorderStroke(1.dp, OrangeAccent),
+                        modifier = Modifier.align(Alignment.End),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+                    ) {
+                        Icon(Icons.Default.Add, contentDescription = "Add option", modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Add Option", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    }
+                } else {
+                    Text("Options (comma-separated)", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Slate500)
+                    Spacer(modifier = Modifier.height(6.dp))
+                    OutlinedTextField(
+                        value = optionsText,
+                        onValueChange = { optionsText = it },
+                        placeholder = { Text("e.g. Small, Medium, Large", color = Slate400, fontSize = 13.sp) },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = OrangeAccent,
+                            unfocusedBorderColor = Slate100,
+                            cursorColor = OrangeAccent
+                        )
                     )
-                )
+                }
 
                 Spacer(modifier = Modifier.height(24.dp))
 
@@ -2416,11 +2504,16 @@ fun VariationAddEditDialog(
                     Button(
                         onClick = {
                             if (name.isNotBlank()) {
+                                val savedOptions = if (isFnB) {
+                                    optionList.map { it.trim() }.filter { it.isNotEmpty() }.joinToString(",")
+                                } else {
+                                    optionsText
+                                }
                                 onSave(
                                     com.example.core.database.entity.VariationEntity(
                                         id = variation?.id ?: UUID.randomUUID().toString(),
                                         name = name,
-                                        options = options,
+                                        options = savedOptions,
                                         price = 0.0
                                     )
                                 )

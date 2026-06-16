@@ -25,7 +25,7 @@ class MainActivity : ComponentActivity() {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
             val context = LocalContext.current
             val authManager = remember { com.example.core.auth.FirebaseAuthManager(context) }
-            var isLoggedIn by remember { mutableStateOf(authManager.currentUser != null) }
+            var isLoggedIn by remember { mutableStateOf(authManager.isUserLoggedIn()) }
 
             if (isLoggedIn) {
                 MainScaffold(onSignOut = { isLoggedIn = false })

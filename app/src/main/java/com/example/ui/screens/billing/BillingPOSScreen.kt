@@ -348,6 +348,40 @@ fun ActivePOSConsole(
                     }
                     val finalPayable = (state.subtotal + state.calculatedTax - discountAmount).coerceAtLeast(0.0)
 
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(end = 16.dp, bottom = 8.dp),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        Surface(
+                            onClick = onNavigateToDashboard,
+                            color = Color(0xFFFFEDD5), // Light Orange
+                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier.height(34.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.FormatListBulleted,
+                                    contentDescription = "Ongoing Orders",
+                                    modifier = Modifier.size(14.dp),
+                                    tint = Color(0xFFF97316) // Solid Orange
+                                )
+                                Text(
+                                    text = "ONGOING",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 11.sp,
+                                    letterSpacing = 0.5.sp,
+                                    color = Color(0xFFF97316) // Solid Orange
+                                )
+                            }
+                        }
+                    }
+
                     Surface(
                         modifier = Modifier.fillMaxWidth(),
                         tonalElevation = 8.dp,
@@ -359,34 +393,6 @@ fun ActivePOSConsole(
                                 .fillMaxWidth()
                                 .padding(top = 10.dp, bottom = 12.dp, start = 16.dp, end = 16.dp)
                         ) {
-                            if (businessCategory == "Service-Based" || businessCategory == "Grocery") {
-                                androidx.compose.material3.Button(
-                                    onClick = onNavigateToDashboard,
-                                    colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-                                        containerColor = Color(0xFFF97316),
-                                        contentColor = Color.White
-                                    ),
-                                    shape = RoundedCornerShape(12.dp),
-                                    contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 14.dp, vertical = 6.dp),
-                                    modifier = Modifier
-                                        .align(Alignment.End)
-                                        .height(34.dp)
-                                ) {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.FormatListBulleted, 
-                                            contentDescription = "Ongoing Orders",
-                                            modifier = Modifier.size(14.dp),
-                                            tint = Color.White
-                                        )
-                                        Text("ONGOING", fontWeight = FontWeight.Bold, fontSize = 11.sp, letterSpacing = 0.5.sp)
-                                    }
-                                }
-                                Spacer(modifier = Modifier.height(10.dp))
-                            }
 
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
@@ -947,6 +953,7 @@ fun ActivePOSConsole(
                             Button(
                                 onClick = {
                                     Toast.makeText(context, "Initializing print spooler...", Toast.LENGTH_SHORT).show()
+                                    com.example.core.utils.ReceiptPrinter.printReceipt(context, state)
                                 },
                                 modifier = Modifier.weight(1.3f),
                                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF97316)), // Rich orange button with printer layout

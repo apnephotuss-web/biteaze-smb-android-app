@@ -235,7 +235,7 @@ fun BillingDashboardScreen(
                                 .size(48.dp)
                                 .clip(RoundedCornerShape(8.dp))
                                 .background(if (isOngoing) Color(0xFFD1FAE5) else Color.White)
-                                .border(1.dp, if (isOngoing) Color(0xFFF97316) else Color(0xFFE2E8F0), RoundedCornerShape(8.dp))
+                                .border(1.dp, if (isOngoing) Color(0xFF10B981) else Color(0xFFE2E8F0), RoundedCornerShape(8.dp))
                                 .clickable {
                                     val order = heldList.find { it.tableNumber == tableId }
                                     if (order != null) {
@@ -246,7 +246,12 @@ fun BillingDashboardScreen(
                                 },
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(tableId, fontWeight = FontWeight.Black, color = Color(0xFFF97316), fontSize = 16.sp)
+                            Text(
+                                text = tableId,
+                                fontWeight = FontWeight.Black,
+                                color = if (isOngoing) Color(0xFF047857) else Color(0xFFF97316),
+                                fontSize = 16.sp
+                            )
                         }
                     }
                 }
@@ -525,15 +530,16 @@ fun HeldOrderGridItem(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     if (businessCategory == "F&B") {
+                        val hasTable = !order.tableNumber.isNullOrBlank()
                         Box(
                             modifier = Modifier
-                                .background(Color(0xFFFFEDD5), RoundedCornerShape(8.dp))
+                                .background(if (hasTable) Color(0xFFD1FAE5) else Color(0xFFFFEDD5), RoundedCornerShape(8.dp))
                                 .padding(horizontal = 12.dp, vertical = 6.dp)
                         ) {
                             Text(
                                 text = "T ${order.tableNumber ?: "-"}",
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFFF97316),
+                                color = if (hasTable) Color(0xFF047857) else Color(0xFFF97316),
                                 fontSize = 16.sp
                             )
                         }

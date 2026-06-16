@@ -6,6 +6,7 @@ plugins {
   alias(libs.plugins.google.devtools.ksp)
   alias(libs.plugins.roborazzi)
   alias(libs.plugins.secrets)
+  alias(libs.plugins.google.services)
   alias(libs.plugins.kotlinx.serialization)
 }
 
@@ -17,24 +18,25 @@ android {
     applicationId = "com.aistudio.syncpos.wqmbyr"
     minSdk = 24
     targetSdk = 36
-    versionCode = 25
-    versionName = "25.0"
+    versionCode = 27
+    versionName = "27.0"
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-    // Load WEB_CLIENT_ID from .env or .env.example fallback for safety
-    val envFile = project.file(".env")
-    val envExampleFile = project.file(".env.example")
-    var clientId = "your_web_client_id_here"
-    
-    if (envFile.exists()) {
-        val props = Properties()
-        envFile.inputStream().use { props.load(it) }
-        clientId = props.getProperty("WEB_CLIENT_ID") ?: clientId
-    } else if (envExampleFile.exists()) {
-        val props = Properties()
-        envExampleFile.inputStream().use { props.load(it) }
-        clientId = props.getProperty("WEB_CLIENT_ID") ?: clientId
+    // Load WEB_CLIENT_ID from environment variables, .env, or .env.example fallback for safety
+    var clientId = System.getenv("WEB_CLIENT_ID") ?: ""
+    if (clientId.isBlank() || clientId == "placeholder_client_id") {
+        val envFile = project.file(".env")
+        val envExampleFile = project.file(".env.example")
+        if (envFile.exists()) {
+            val props = Properties()
+            envFile.inputStream().use { props.load(it) }
+            clientId = props.getProperty("WEB_CLIENT_ID") ?: clientId
+        } else if (envExampleFile.exists()) {
+            val props = Properties()
+            envExampleFile.inputStream().use { props.load(it) }
+            clientId = props.getProperty("WEB_CLIENT_ID") ?: "placeholder_client_id"
+        }
     }
     
     buildConfigField("String", "WEB_CLIENT_ID", "\"$clientId\"")
@@ -85,12 +87,6 @@ secrets {
   defaultPropertiesFileName = ".env.example"
 }
 
-// Some unused dependencies are commented out below instead of being removed.
-// This makes it easy to add them back in the future if needed.
-if (file("google-services.json").exists()) {
-    apply(plugin = "com.google.gms.google-services")
-}
-
 dependencies {
   implementation(platform(libs.androidx.compose.bom))
   implementation(platform(libs.firebase.bom))
@@ -119,6 +115,7 @@ dependencies {
   // implementation(libs.firebase.ai)
   implementation(libs.firebase.auth)
   implementation(libs.firebase.firestore)
+  implementation(libs.firebase.analytics)
   implementation(libs.play.services.auth)
   implementation(libs.kotlinx.coroutines.android)
   implementation(libs.kotlinx.coroutines.core)

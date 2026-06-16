@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "267764222044",
+    "project_id": "androidbilling-f801b",
+    "storage_bucket": "androidbilling-f801b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:267764222044:android:a7097df0a8f43da6ab7e99",
+        "android_client_info": {
+          "package_name": "com.aistudio.syncpos.wqmbyr"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBXa71ojRrD8aDu-Rk-_j_RQd7da3OR9aQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -56,7 +56,6 @@ fun MoreScreen(
     val prefs: SharedPreferences = remember { context.getSharedPreferences("syncpos_settings", Context.MODE_PRIVATE) }
     var activePage by remember { mutableStateOf("menu") }
     var showSettingsDialog by remember { mutableStateOf(false) }
-    var showCategoryDialog by remember { mutableStateOf(false) }
     
     var businessCategory by remember { mutableStateOf(prefs.getString("business_category", "F&B") ?: "F&B") }
     var expiryWarningDays by remember { mutableStateOf(prefs.getInt("expiry_warning_days", 7)) }
@@ -93,56 +92,8 @@ fun MoreScreen(
                 )
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Business Category Tile
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .shadow(elevation = 1.dp, shape = RoundedCornerShape(24.dp), clip = false)
-                        .clickable { showCategoryDialog = true },
-                    shape = RoundedCornerShape(24.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
-                    border = BorderStroke(1.dp, Color(0xFFF1F5F9))
-                ) {
-                    Row(
-                        modifier = Modifier.padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(48.dp)
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(Color(0xFFFFF7ED)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Storefront,
-                                contentDescription = "Business Category",
-                                tint = Color(0xFFF97316),
-                                modifier = Modifier.size(24.dp)
-                            )
-                        }
-                        Spacer(modifier = Modifier.width(16.dp))
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = "Business Category",
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color(0xFF1E293B)
-                            )
-                            Text(
-                                text = "Currently: $businessCategory",
-                                fontSize = 13.sp,
-                                color = Color(0xFF64748B)
-                            )
-                        }
-                        Icon(
-                            imageVector = Icons.Rounded.ChevronRight,
-                            contentDescription = null,
-                            tint = Color(0xFF94A3B8)
-                        )
-                    }
-                }
-
+                // Business Category Tile (Removed to enforce permanent selection at signup)
+                
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Settings Tile
@@ -716,76 +667,6 @@ fun MoreScreen(
                 TextButton(onClick = { showSettingsDialog = false }) {
                     Text("Cancel", color = Color(0xFF64748B))
                 }
-            },
-            shape = RoundedCornerShape(24.dp),
-            containerColor = Color.White
-        )
-    }
-    if (showCategoryDialog) {
-        var tempCategory by remember { mutableStateOf(businessCategory) }
-        var tempWarningDays by remember { mutableStateOf(expiryWarningDays.toString()) }
-
-        AlertDialog(
-            onDismissRequest = { showCategoryDialog = false },
-            title = {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Icon(Icons.Default.Storefront, contentDescription = null, tint = Color(0xFFF97316))
-                    Text("BUSINESS CATEGORY", fontWeight = FontWeight.Black, color = Color(0xFF1E293B), fontSize = 18.sp)
-                }
-            },
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                    Text("Select your primary business type to customize the app layout and features.", fontSize = 14.sp, color = Color(0xFF64748B))
-                    
-                    val options = listOf("F&B", "Grocery", "Service-Based")
-                    options.forEach { opt ->
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { tempCategory = opt }
-                                .padding(vertical = 8.dp)
-                        ) {
-                            RadioButton(
-                                selected = (tempCategory == opt),
-                                onClick = { tempCategory = opt },
-                                colors = RadioButtonDefaults.colors(selectedColor = Color(0xFFF97316))
-                            )
-                            Spacer(Modifier.width(8.dp))
-                            Text(opt, fontWeight = FontWeight.Bold, color = Color(0xFF1E293B), fontSize = 16.sp)
-                        }
-                    }
-
-                    if (tempCategory == "Grocery") {
-                        Spacer(modifier = Modifier.height(8.dp))
-                        OutlinedTextField(
-                            value = tempWarningDays,
-                            onValueChange = { tempWarningDays = it },
-                            label = { Text("Expiry Warning Interval (Days before expiry)") },
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(12.dp)
-                        )
-                    }
-                }
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        businessCategory = tempCategory
-                        val editedDays = tempWarningDays.toIntOrNull() ?: 7
-                        expiryWarningDays = editedDays
-                        prefs.edit()
-                            .putString("business_category", tempCategory)
-                            .putInt("expiry_warning_days", editedDays)
-                            .apply()
-                        showCategoryDialog = false
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF97316))
-                ) { Text("Save Changes") }
-            },
-            dismissButton = {
-                TextButton(onClick = { showCategoryDialog = false }) { Text("Cancel") }
             },
             shape = RoundedCornerShape(24.dp),
             containerColor = Color.White
